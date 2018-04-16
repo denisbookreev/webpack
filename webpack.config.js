@@ -1,8 +1,9 @@
-const path = require("path");
+const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-module.exports = {
+const config = {
   entry: {
     app: "./src/app.js"
   },
@@ -17,7 +18,7 @@ module.exports = {
         use: 'pug-loader'
       },
       {
-        test: /\.styl/,
+        test: /\.styl$/,
         use: [
           "style-loader",
           "css-loader",
@@ -29,7 +30,7 @@ module.exports = {
         use: "file-loader"
       },
       {
-        test: /\.js$|\.es6$/,
+        test: /\.js$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
@@ -40,10 +41,12 @@ module.exports = {
       }
     ]
   },
+  // context: path.join(__dirname, 'dist'),
   devServer: {
     contentBase: path.join(__dirname, 'dist'),
     compress: true,
-    open: true
+    open: true,
+    overlay: true
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -53,6 +56,14 @@ module.exports = {
       // Change there name of main |pug| file
       template: './src/index.pug'
     }),
-    new webpack.optimize.UglifyJsPlugin({})
+    new CopyWebpackPlugin([
+      { from: './src/static', }
+    ])
   ]
+};
+
+
+module.exports = (env, options) => {
+  config.devtool = options.mode === 'production' ? false : 'eval-sourcemap';
+  return config;
 };
